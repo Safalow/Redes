@@ -21,7 +21,7 @@ void escrever_arquivo(int sockfd, struct sockaddr_in addr)
     {
 
         addr_size = sizeof(addr);
-        n = recvfrom(sockfd, buffer, SIZE, 0, (struct sockaddr *)&addr, &addr_size);
+        n = recvfrom(sockfd, buffer, MAX, 0, (struct sockaddr *)&addr, &addr_size);
 
         if (strcmp(buffer, "END") == 0)
         {
