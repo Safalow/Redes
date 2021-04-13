@@ -4,28 +4,28 @@
 #include <strings.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#define SIZE 1024
+#define MAX 1024
 
-void send_file_data(FILE *fp, int sockfd, struct sockaddr_in addr)
+void enviar_dados(FILE *fp, int sockfd, struct sockaddr_in addr)
 {
     int n;
-    char buffer[SIZE];
+    char buffer[MAX];
 
-    while (fgets(buffer, SIZE, fp) != NULL)
+    while (fgets(buffer, MAX, fp) != NULL)
     {
-        printf("[SENDING] Data: %s", buffer);
+        printf("Enviando dados: %s", buffer);
 
-        n = sendto(sockfd, buffer, SIZE, 0, (struct sockaddr *)&addr, sizeof(addr));
+        n = sendto(sockfd, buffer, MAX, 0, (struct sockaddr *)&addr, sizeof(addr));
         if (n == -1)
         {
-            perror("[ERROR] sending data to the server.");
+            perror("ERRO ao enviar dados ao servidor.");
             exit(1);
         }
-        bzero(buffer, SIZE);
+        bzero(buffer, MAX);
     }
 
     strcpy(buffer, "END");
-    sendto(sockfd, buffer, SIZE, 0, (struct sockaddr *)&addr, sizeof(addr));
+    sendto(sockfd, buffer, MAX, 0, (struct sockaddr *)&addr, sizeof(addr));
 
     fclose(fp);
     return;
@@ -35,7 +35,7 @@ int main()
 {
 
     char *ip = "127.0.0.1";
-    int port = 8080;
+    int porta = 3000;
 
     int server_sockfd;
     struct sockaddr_in server_addr;
@@ -43,26 +43,22 @@ int main()
     char *filename = "cliente.txt";
 
     server_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (server_sockfd < 0)
-    {
-        perror("[ERROR] socket error");
-        exit(1);
-    }
+
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = port;
+    server_addr.sin_port = porta;
     server_addr.sin_addr.s_addr = inet_addr(ip);
 
     fp = fopen(filename, "r");
     if (fp == NULL)
     {
-        perror("[ERROR] reading the file");
+        perror("ERRO ao ler o arquivo");
         exit(1);
     }
 
-    send_file_data(fp, server_sockfd, server_addr);
+    enviar_dados(fp, server_sockfd, server_addr);
 
-    printf("\n[SUCCESS] Data transfer complete.\n");
-    printf("[CLOSING] Disconnecting from the server.\n");
+    printf("\nTransferência de dados completa.\n");
+    printf("Desconectando do servidor.\n");
 
     close(server_sockfd);
 

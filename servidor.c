@@ -5,14 +5,14 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define SIZE 1024
+#define MAX 1024
 
-void write_file(int sockfd, struct sockaddr_in addr)
+void escrever_arquivo(int sockfd, struct sockaddr_in addr)
 {
     FILE *fp;
-    char *filename = "server.txt";
+    char *filename = "servidor.txt";
     int n;
-    char buffer[SIZE];
+    char buffer[MAX];
     socklen_t addr_size;
 
     fp = fopen(filename, "w");
@@ -29,9 +29,9 @@ void write_file(int sockfd, struct sockaddr_in addr)
             return;
         }
 
-        printf("[RECEVING] Data: %s", buffer);
+        printf("Recebendo dados: %s", buffer);
         fprintf(fp, "%s", buffer);
-        bzero(buffer, SIZE);
+        bzero(buffer, MAX);
     }
 
     fclose(fp);
@@ -42,34 +42,25 @@ int main()
 {
 
     char *ip = "127.0.0.1";
-    int port = 8080;
+    int porta = 3000;
 
     int server_sockfd;
     struct sockaddr_in server_addr, client_addr;
     int e;
 
     server_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (server_sockfd < 0)
-    {
-        perror("[ERROR] socket error");
-        exit(1);
-    }
+
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = port;
+    server_addr.sin_port = porta;
     server_addr.sin_addr.s_addr = inet_addr(ip);
 
     e = bind(server_sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
-    if (e < 0)
-    {
-        perror("[ERROR] bind error");
-        exit(1);
-    }
 
-    printf("[STARTING] UDP File Server started. \n");
-    write_file(server_sockfd, client_addr);
+    printf("Servidor UDP iniciado. \n");
+    escrever_arquivo(server_sockfd, client_addr);
 
-    printf("\n[SUCCESS] Data transfer complete.\n");
-    printf("[CLOSING] Closing the server.\n");
+    printf("\nTransferência de dados completa.\n");
+    printf("Fechando o servidor.\n");
 
     close(server_sockfd);
 
