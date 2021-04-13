@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
+#include <unistd.h>
+#include <arpa/inet.h>
 
 #define SIZE 1024
 
@@ -12,10 +15,8 @@ void write_file(int sockfd, struct sockaddr_in addr)
     char buffer[SIZE];
     socklen_t addr_size;
 
-    // Creating a file.
     fp = fopen(filename, "w");
 
-    // Receiving the data and writing it into the file.
     while (1)
     {
 
@@ -40,17 +41,13 @@ void write_file(int sockfd, struct sockaddr_in addr)
 int main()
 {
 
-    // Defining the IP and Port
     char *ip = "127.0.0.1";
     int port = 8080;
 
-    // Defining variables
     int server_sockfd;
     struct sockaddr_in server_addr, client_addr;
-    char buffer[SIZE];
     int e;
 
-    // Creating a UDP socket
     server_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (server_sockfd < 0)
     {
@@ -71,7 +68,7 @@ int main()
     printf("[STARTING] UDP File Server started. \n");
     write_file(server_sockfd, client_addr);
 
-    printf("[SUCCESS] Data transfer complete.\n");
+    printf("\n[SUCCESS] Data transfer complete.\n");
     printf("[CLOSING] Closing the server.\n");
 
     close(server_sockfd);
