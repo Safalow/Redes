@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #define MAX 1024
 
-void enviar_dados(FILE *fp, int sockfd, struct sockaddr_in addr)
+void enviar_dados(FILE *fp, int socket_udp, struct sockaddr_in endereco)
 {
     int n;
     char buffer[MAX];
@@ -15,7 +15,7 @@ void enviar_dados(FILE *fp, int sockfd, struct sockaddr_in addr)
     {
         printf("Enviando dados: %s", buffer);
 
-        n = sendto(sockfd, buffer, MAX, 0, (struct sockaddr *)&addr, sizeof(addr));
+        n = sendto(socket_udp, buffer, MAX, 0, (struct sockaddr *)&endereco, sizeof(endereco));
         if (n == -1)
         {
             perror("ERRO ao enviar dados ao servidor.");
@@ -25,7 +25,7 @@ void enviar_dados(FILE *fp, int sockfd, struct sockaddr_in addr)
     }
 
     strcpy(buffer, "END");
-    sendto(sockfd, buffer, MAX, 0, (struct sockaddr *)&addr, sizeof(addr));
+    sendto(socket_udp, buffer, MAX, 0, (struct sockaddr *)&endereco, sizeof(endereco));
 
     fclose(fp);
     return;
@@ -37,16 +37,16 @@ int main()
     char *ip = "127.0.0.1";
     int porta = 3000;
 
-    int server_sockfd;
-    struct sockaddr_in server_addr;
+    int socket_udp;
+    struct sockaddr_in endereco_servidor;
     FILE *fp;
     char *filename = "cliente.txt";
 
-    server_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
 
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = porta;
-    server_addr.sin_addr.s_addr = inet_addr(ip);
+    endereco_servidor.sin_family = AF_INET;
+    endereco_servidor.sin_port = porta;
+    endereco_servidor.sin_addr.s_addr = inet_addr(ip);
 
     fp = fopen(filename, "r");
     if (fp == NULL)
@@ -55,12 +55,12 @@ int main()
         exit(1);
     }
 
-    enviar_dados(fp, server_sockfd, server_addr);
+    enviar_dados(fp, socket_udp, endereco_servidor);
 
     printf("\nTransferência de dados completa.\n");
     printf("Desconectando do servidor.\n");
 
-    close(server_sockfd);
+    close(socket_udp);
 
     return 0;
 }

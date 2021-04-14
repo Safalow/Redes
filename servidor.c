@@ -7,21 +7,21 @@
 
 #define MAX 1024
 
-void escrever_arquivo(int sockfd, struct sockaddr_in addr)
+void escrever_arquivo(int socket_udp, struct sockaddr_in endereco)
 {
     FILE *fp;
     char *filename = "servidor.txt";
-    int n;
+
     char buffer[MAX];
-    socklen_t addr_size;
+    socklen_t tamanho_endereco;
 
     fp = fopen(filename, "w");
 
     while (1)
     {
 
-        addr_size = sizeof(addr);
-        n = recvfrom(sockfd, buffer, MAX, 0, (struct sockaddr *)&addr, &addr_size);
+        tamanho_endereco = sizeof(endereco);
+        recvfrom(socket_udp, buffer, MAX, 0, (struct sockaddr *)&endereco, &tamanho_endereco);
 
         if (strcmp(buffer, "END") == 0)
         {
@@ -44,25 +44,24 @@ int main()
     char *ip = "127.0.0.1";
     int porta = 3000;
 
-    int server_sockfd;
-    struct sockaddr_in server_addr, client_addr;
-    int e;
+    int socket_udp;
+    struct sockaddr_in endereco_servidor, endereco_cliente;
 
-    server_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
 
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = porta;
-    server_addr.sin_addr.s_addr = inet_addr(ip);
+    endereco_servidor.sin_family = AF_INET;
+    endereco_servidor.sin_port = porta;
+    endereco_servidor.sin_addr.s_addr = inet_addr(ip);
 
-    e = bind(server_sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    bind(socket_udp, (struct sockaddr *)&endereco_servidor, sizeof(endereco_servidor));
 
     printf("Servidor UDP iniciado. \n");
-    escrever_arquivo(server_sockfd, client_addr);
+    escrever_arquivo(socket_udp, endereco_cliente);
 
     printf("\nTransferência de dados completa.\n");
     printf("Fechando o servidor.\n");
 
-    close(server_sockfd);
+    close(socket_udp);
 
     return 0;
 }
